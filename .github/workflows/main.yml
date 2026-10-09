@@ -1,38 +1,397 @@
-name: Build Hindu Calendar APK
 
-on:
-workflow_dispatch:
-push:
-branches:
-- main
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#7b241c">
+<title>हिंदू पंचांग</title>
 
-permissions:
-contents: read
+<style>
+:root {
+  --red: #8b2d20;
+  --gold: #e8b65a;
+  --cream: #fff9ed;
+  --ink: #39231b;
+}
+* { box-sizing: border-box; }
 
-jobs:
-build:
-runs-on: ubuntu-latest
+body {
+  margin: 0;
+  font-family: system-ui, "Noto Sans Devanagari", sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+}
+button, select { font: inherit; }
+button { cursor: pointer; }
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
+header {
+  background: linear-gradient(135deg,#601c19,#a43c25);
+  color: white;
+  padding: 20px 16px;
+  text-align: center;
+  border-bottom: 4px solid var(--gold);
+}
+.brand {
+  font-size: 25px;
+  font-weight: 800;
+}
+.subtitle { font-size: 13px; margin-top: 5px; }
 
-  - name: Set up JDK
-    uses: actions/setup-java@v4
-    with:
-      distribution: temurin
-      java-version: '17'
+main {
+  width: 100%;
+  max-width: 540px;
+  margin: auto;
+  padding: 16px;
+}
+.hidden { display: none !important; }
 
-  - name: Set up Gradle
-    uses: gradle/actions/setup-gradle@v4
+.welcome {
+  text-align: center;
+  margin-top: 16px;
+}
+.hero {
+  border: 1px solid #e8c887;
+  border-radius: 24px;
+  padding: 28px 18px;
+  background:
+    radial-gradient(circle at top, #fff0c7, transparent 65%),
+    #fffaf0;
+  box-shadow: 0 8px 28px #68311b12;
+}
+.om {
+  font-size: 58px;
+  color: var(--red);
+  margin: 8px 0;
+}
+.hero h1 { font-size: 25px; margin: 8px 0; }
+.hero p { line-height: 1.8; color: #745347; }
 
-  - name: Build Debug APK
-    run: gradle assembleDebug
+.primary {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--red);
+  color: white;
+  font-weight: 700;
+}
+.secondary {
+  padding: 10px 13px;
+  border: 1px solid #dfc9a8;
+  border-radius: 10px;
+  background: white;
+  color: var(--red);
+}
+.menu {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 14px 0;
+}
+.menu button { flex: 1; min-width: 90px; }
 
-  - name: Upload APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: Hindu-Calendar-APK
-      path: app/build/outputs/apk/debug/*.apk
-      if-no-files-found: error
-      retention-days: 7
+.panel {
+  background: white;
+  border: 1px solid #eee0ca;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 3px 12px #54281a08;
+}
+.today {
+  background: linear-gradient(135deg,#fff0d2,#fffaf0);
+  border-color: #e7c37d;
+}
+.today h2 { margin: 0 0 6px; font-size: 19px; }
+.muted { color: #826d60; font-size: 13px; }
+
+.monthbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.monthbar h2 {
+  font-size: 19px;
+  text-align: center;
+  margin: 5px 0;
+}
+.monthbar button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #e5d4bb;
+  border-radius: 12px;
+  color: var(--red);
+  background: #fffaf0;
+  font-size: 22px;
+}
+.weekdays, .days {
+  display: grid;
+  grid-template-columns: repeat(7,minmax(0,1fr));
+  gap: 4px;
+}
+.weekdays { margin: 14px 0 8px; text-align: center; }
+.weekdays div {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8b6250;
+}
+.day {
+  min-width: 0;
+  min-height: 51px;
+  padding: 5px 0;
+  border: 1px solid #f0e6d6;
+  border-radius: 9px;
+  background: #fffdf8;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.day .num { font-size: 15px; font-weight: 650; }
+.day .dot { font-size: 9px; color: #b47a22; }
+.day.today-mark {
+  border: 2px solid var(--red);
+  background: #fff0d5;
+}
+.day.selected {
+  background: var(--red);
+  color: white;
+  border-color: var(--red);
+}
+.day.selected .dot { color: #ffe3a3; }
+.day:disabled { visibility: hidden; }
+
+.info-title { color: var(--red); font-weight: 800; }
+.info-line { margin-top: 10px; line-height: 1.7; }
+
+footer {
+  text-align: center;
+  padding: 18px 10px 28px;
+  color: #8d7667;
+  font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="brand">🪔 हिंदू पंचांग</div>
+  <div class="subtitle">तिथि • वार • मास • पर्व</div>
+</header>
+
+<main>
+  <!-- शुरुआत में स्वागत कार्ड -->
+  <section id="welcome" class="welcome">
+    <div class="hero">
+      <div class="om">ॐ</div>
+      <h1>सनातन पंचांग</h1>
+      <p>
+        अपने दिन की शुरुआत करें भारतीय पंचांग के साथ।<br>
+        कैलेंडर देखें और अपनी तारीख चुनें।
+      </p>
+      <button class="primary" id="openCalendar">
+        📅 पंचांग खोलें
+      </button>
+    </div>
+  </section>
+
+  <!-- बटन दबाने पर सामान्य मासिक कैलेंडर -->
+  <section id="calendarPage" class="hidden">
+    <div class="menu">
+      <button class="secondary" id="homeBtn">⌂ कैलेंडर</button>
+      <button class="secondary" id="todayBtn">आज की तारीख</button>
+    </div>
+
+    <div class="panel today">
+      <h2 id="todayHeading">आज का दिन</h2>
+      <div id="todayDate" class="muted"></div>
+    </div>
+
+    <div class="panel">
+      <div class="monthbar">
+        <button id="prevMonth" aria-label="पिछला महीना">‹</button>
+        <h2 id="monthTitle"></h2>
+        <button id="nextMonth" aria-label="अगला महीना">›</button>
+      </div>
+
+      <div class="weekdays">
+        <div>रवि</div><div>सोम</div><div>मंगल</div>
+        <div>बुध</div><div>गुरु</div><div>शुक्र</div>
+        <div>शनि</div>
+      </div>
+      <div class="days" id="daysGrid"></div>
+    </div>
+
+    <div class="panel" id="dateDetails" aria-live="polite">
+      <div class="info-title">चुनी हुई तारीख</div>
+      <div class="info-line" id="selectedDate"></div>
+      <div class="info-line" id="selectedWeekday"></div>
+      <p class="muted">
+        तिथि, नक्षत्र, योग और पर्व के सही विवरण के लिए
+        प्रमाणित पंचांग डेटा जोड़ना आवश्यक है।
+      </p>
+    </div>
+  </section>
+
+  <section id="aboutPage" class="hidden">
+    <div class="menu">
+      <button class="secondary" id="backCalendar">← कैलेंडर पर लौटें</button>
+    </div>
+    <div class="panel">
+      <h2>ऐप के बारे में</h2>
+      <p>हिंदू पंचांग — भारतीय तिथियों और कैलेंडर के लिए।</p>
+      <p>Made by Ravi Kumar Kannaujiya</p>
+    </div>
+  </section>
+</main>
+
+<footer>॥ शुभं भवतु ॥</footer>
+
+<script>
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+
+const welcome = $("welcome");
+const calendarPage = $("calendarPage");
+const aboutPage = $("aboutPage");
+const grid = $("daysGrid");
+
+const weekdays = [
+  "रविवार", "सोमवार", "मंगलवार", "बुधवार",
+  "गुरुवार", "शुक्रवार", "शनिवार"
+];
+
+const monthNames = [
+  "जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून",
+  "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"
+];
+
+const dateFormat = new Intl.DateTimeFormat("hi-IN", {
+  day: "numeric",
+  month: "long",
+  year: "numeric"
+});
+
+const today = new Date();
+today.setHours(12, 0, 0, 0);
+
+let shownYear = today.getFullYear();
+let shownMonth = today.getMonth();
+let selected = new Date(today);
+
+function showPage(page) {
+  welcome.classList.toggle("hidden", page !== "welcome");
+  calendarPage.classList.toggle("hidden", page !== "calendar");
+  aboutPage.classList.toggle("hidden", page !== "about");
+  window.scrollTo(0, 0);
+}
+
+function sameDate(a, b) {
+  return a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+}
+
+function renderCalendar() {
+  $("monthTitle").textContent =
+    monthNames[shownMonth] + " " + shownYear;
+
+  grid.replaceChildren();
+
+  const firstDay = new Date(shownYear, shownMonth, 1).getDay();
+  const totalDays = new Date(shownYear, shownMonth + 1, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const blank = document.createElement("button");
+    blank.className = "day";
+    blank.disabled = true;
+    blank.tabIndex = -1;
+    blank.setAttribute("aria-hidden", "true");
+    grid.appendChild(blank);
+  }
+
+  for (let day = 1; day <= totalDays; day++) {
+    const date = new Date(shownYear, shownMonth, day, 12);
+    const btn = document.createElement("button");
+    btn.className = "day";
+
+    if (sameDate(date, today)) btn.classList.add("today-mark");
+    if (sameDate(date, selected)) btn.classList.add("selected");
+
+    const num = document.createElement("span");
+    num.className = "num";
+    num.textContent = String(day);
+
+    btn.appendChild(num);
+
+    if (sameDate(date, today)) {
+      const dot = document.createElement("span");
+      dot.className = "dot";
+      dot.textContent = "आज";
+      btn.appendChild(dot);
+    }
+
+    btn.setAttribute("aria-label", dateFormat.format(date));
+    btn.setAttribute("aria-pressed", String(sameDate(date, selected)));
+
+    btn.addEventListener("click", () => {
+      selected = new Date(date);
+      renderCalendar();
+      renderSelectedDate();
+    });
+
+    grid.appendChild(btn);
+  }
+
+  renderSelectedDate();
+}
+
+function renderSelectedDate() {
+  $("selectedDate").textContent = dateFormat.format(selected);
+  $("selectedWeekday").textContent =
+    "वार: " + weekdays[selected.getDay()];
+}
+
+function updateToday() {
+  $("todayHeading").textContent = "आज का दिन";
+  $("todayDate").textContent =
+    weekdays[today.getDay()] + ", " + dateFormat.format(today);
+}
+
+function changeMonth(amount) {
+  const next = new Date(shownYear, shownMonth + amount, 1);
+  shownYear = next.getFullYear();
+  shownMonth = next.getMonth();
+  renderCalendar();
+}
+
+$("openCalendar").addEventListener("click", () => {
+  showPage("calendar");
+  renderCalendar();
+});
+
+$("homeBtn").addEventListener("click", () => {
+  showPage("calendar");
+  renderCalendar();
+});
+
+$("todayBtn").addEventListener("click", () => {
+  selected = new Date(today);
+  shownYear = today.getFullYear();
+  shownMonth = today.getMonth();
+  renderCalendar();
+});
+
+$("prevMonth").addEventListener("click", () => changeMonth(-1));
+$("nextMonth").addEventListener("click", () => changeMonth(1));
+
+updateToday();
+renderCalendar();
+</script>
+</body>
+</html>
