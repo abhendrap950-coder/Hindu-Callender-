@@ -1,6 +1,6 @@
 name: Build Hindu Calendar APK
 
-'on':
+on:
 workflow_dispatch:
 push:
 branches:
@@ -12,9 +12,10 @@ contents: read
 jobs:
 build:
 runs-on: ubuntu-latest
+
 steps:
-- name: Checkout repository
-uses: actions/checkout@v4
+  - name: Checkout repository
+    uses: actions/checkout@v4
 
   - name: Set up JDK
     uses: actions/setup-java@v4
