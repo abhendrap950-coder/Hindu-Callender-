@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -47,7 +48,8 @@ fun HomeScreen(
     onDateSelected: (LocalDate) -> Unit,
     onOpenMenu: () -> Unit,
     onOpenLocationSettings: () -> Unit,
-    onOpenDailyCard: () -> Unit
+    onOpenDailyCard: () -> Unit,
+    onOpenCardGenerator: () -> Unit = {}
 ) {
     val weekdaysHindi = listOf("रवि", "सोम", "मंगल", "बुध", "गुरु", "शुक्र", "शनि")
     val today = LocalDate.now()
@@ -511,6 +513,76 @@ fun HomeScreen(
                                 )
                             }
                         }
+                    }
+                }
+            }
+
+            // 4. DEVOTIONAL & FESTIVAL GREETING CARDS GENERATOR CARD
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaroonPrimary.copy(alpha = 0.08f)
+                ),
+                shape = RoundedCornerShape(18.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.2.dp,
+                    GoldAccent.copy(alpha = 0.6f)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("home_card_generator_banner")
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "🎴", fontSize = 22.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "सुविचार व शुभकामना कार्ड बनाएं",
+                                fontSize = 15.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    Text(
+                        text = "भगवान शिव, हनुमान, श्री गणेश, माँ लक्ष्मी की फोटो सहित दैनिक सुविचार, श्लोक एवं पर्व शुभकामना कार्ड तैयार कर परिजनों को शेयर करें।",
+                        fontSize = 12.5.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 17.sp
+                    )
+
+                    Button(
+                        onClick = onOpenCardGenerator,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(46.dp)
+                            .testTag("home_create_card_button"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaroonPrimary
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = null,
+                            tint = GoldAccent,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "कार्ड बनाएं एवं शेयर करें",
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                     }
                 }
             }

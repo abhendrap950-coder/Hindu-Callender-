@@ -56,6 +56,7 @@ fun HinduPanchangApp(viewModel: MainViewModel) {
     val notifFestivals by viewModel.notifFestivalsFlow.collectAsState()
     val notifVrats by viewModel.notifVratsFlow.collectAsState()
     val openDailyCard by viewModel.openDailyCardFlow.collectAsState()
+    val selectedFestivalForCard by viewModel.selectedFestivalForCard.collectAsState()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
@@ -117,6 +118,9 @@ fun HinduPanchangApp(viewModel: MainViewModel) {
                         },
                         onOpenDailyCard = {
                             viewModel.navigateTo(AppScreen.DAILY_CARD)
+                        },
+                        onOpenCardGenerator = {
+                            viewModel.openCardGenerator()
                         }
                     )
                 }
@@ -171,6 +175,18 @@ fun HinduPanchangApp(viewModel: MainViewModel) {
                     VratFestivalsScreen(
                         vrats = vrats,
                         festivals = festivals,
+                        onBack = { viewModel.navigateTo(AppScreen.HOME) },
+                        onOpenCardGenerator = { fest -> viewModel.openCardGenerator(fest) }
+                    )
+                }
+
+                AppScreen.DEVOTIONAL_CARDS -> {
+                    val todayPanchang = remember(currentLocation) {
+                        viewModel.getTodayPanchang()
+                    }
+                    CardGeneratorScreen(
+                        currentPanchang = todayPanchang,
+                        initialFestival = selectedFestivalForCard,
                         onBack = { viewModel.navigateTo(AppScreen.HOME) }
                     )
                 }

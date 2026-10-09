@@ -31,6 +31,7 @@ data class MenuItemData(
 
 val APP_MENU_ITEMS = listOf(
     MenuItemData(AppScreen.HOME, "🏠 होम (Home)", Icons.Default.Home),
+    MenuItemData(AppScreen.DEVOTIONAL_CARDS, "🎴 सुविचार व शुभकामना कार्ड (Cards)", Icons.Default.Share),
     MenuItemData(AppScreen.CALENDAR, "📅 कैलेंडर (Calendar)", Icons.Default.CalendarMonth),
     MenuItemData(AppScreen.VRAT_FESTIVALS, "🪔 व्रत एवं त्योहार (Vrat & Festivals)", Icons.Default.Festival),
     MenuItemData(AppScreen.DAILY_PANCHANG, "🕉️ दैनिक पंचांग (Daily Panchang)", Icons.Default.WbSunny),

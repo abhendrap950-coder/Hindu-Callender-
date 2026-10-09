@@ -20,6 +20,7 @@ enum class AppScreen {
     CALENDAR,
     VRAT_FESTIVALS,
     DAILY_PANCHANG,
+    DEVOTIONAL_CARDS,
     SETTINGS,
     ABOUT
 }
@@ -40,6 +41,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _dailyPanchangDate = MutableStateFlow(LocalDate.now())
     val dailyPanchangDate: StateFlow<LocalDate> = _dailyPanchangDate.asStateFlow()
 
+    private val _selectedFestivalForCard = MutableStateFlow<FestivalItem?>(null)
+    val selectedFestivalForCard: StateFlow<FestivalItem?> = _selectedFestivalForCard.asStateFlow()
+
     val currentLocation: StateFlow<CityLocation> = repository.currentLocation
 
     val themeFlow = repository.themeFlow.stateIn(viewModelScope, SharingStarted.Eagerly, "system")
@@ -55,7 +59,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun navigateTo(screen: AppScreen) {
+        if (screen != AppScreen.DEVOTIONAL_CARDS) {
+            _selectedFestivalForCard.value = null
+        }
         _currentScreen.value = screen
+    }
+
+    fun openCardGenerator(festival: FestivalItem? = null) {
+        _selectedFestivalForCard.value = festival
+        _currentScreen.value = AppScreen.DEVOTIONAL_CARDS
     }
 
     fun selectDateAndOpenDetail(date: LocalDate) {
